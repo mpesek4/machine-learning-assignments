@@ -34,7 +34,8 @@ def find_legal_moves(gamestate,player):
                         new_gamestate[i+move[0]][j+move[1]] = ('B',player)
                         states.append(new_gamestate)
             if gamestate[i][j][1] == 'B':
-                for move in bishop_moves:
+                for m in range (0,12):
+                    move =  bishop_moves[m] 
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
                     and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0']:
                         if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w':
@@ -43,9 +44,18 @@ def find_legal_moves(gamestate,player):
                         new_gamestate[i][j] = ('0',0)
                         new_gamestate[i+move[0]][j+move[1]] = ('B',player)
                         states.append(new_gamestate)
-
+                    else: # if we hit an illegal move we are able to do a skip (we cannot move through pieces)
+                        if m < 3:
+                            m = 3
+                        elif m < 6:
+                            m = 6
+                        elif m <9:
+                            m = 9
+                        elif m < 12:
+                            break
             if gamestate[i][j][1] == 'R':
-                for move in rook_moves:
+                for m in range (0,12):
+                    move = rook_moves[m]
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
                     and gamestate[i+move[0]][j+move[1]][0] in  [opposing_piece,'0']:
                         if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w':
@@ -54,8 +64,20 @@ def find_legal_moves(gamestate,player):
                         new_gamestate[i][j] = ('0',0)
                         new_gamestate[i+move[0]][j+move[1]] = ('B',player)
                         states.append(new_gamestate)
+                    else:
+                        if m < 3:
+                            m = 3
+                        elif m < 6:
+                            m = 6
+                        elif m <9:
+                            m = 9
+                        elif m < 12:
+                            break
+                        
             if gamestate[i][j][1] == 'Q':
-                for move in bishop_moves+rook_moves:
+                for m in range (0,24):
+                    queen_moves = bishop_moves+rook_moves
+                    move = queen_moves[m]
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
                     and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0']:
                         if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w':
@@ -64,6 +86,21 @@ def find_legal_moves(gamestate,player):
                         new_gamestate[i][j] = ('0',0)
                         new_gamestate[i+move[0]][j+move[1]] = ('B',player)
                         states.append(new_gamestate)
+                    else:
+                        if m < 3:
+                            m = 3
+                        elif m < 6:
+                            m = 6
+                        elif m <9:
+                            m = 9
+                        elif m <15:
+                            m= 15
+                        elif m < 18:
+                            m= 18
+                        elif m < 21:
+                            m= 21
+                        elif m < 24:
+                            break
     return states
 def win_in_one(gamestate,moves_left,player):
     # if it is blacks move, white cannot win in one move, so call the function again on iterations and decrease moves_left
@@ -91,7 +128,7 @@ for i in range(0,num_of_games):
     board_state = [[0 for i in range(4)] for j in range(4)]
     for i in range(0,4):
         for j in range(0,4):
-            board_state[i][j] = (0,0)
+            board_state[i][j] = ('0',0)
     
     line_1 = raw_input().strip().split()
     w = int(line_1[0])
