@@ -38,7 +38,9 @@ def find_legal_moves(gamestate,player):
                         new_gamestate[i+move[0]][j+move[1]] = ('N',player)
                         knight_states.append(new_gamestate)
             if gamestate[i][j][1] == 'B':
+                index = -1
                 for m in range (0,12):
+                    index+=1
                     move =  bishop_moves[m] 
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
                     and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0']:
@@ -49,16 +51,18 @@ def find_legal_moves(gamestate,player):
                         new_gamestate[i+move[0]][j+move[1]] = ('B',player)
                         bishop_states.append(new_gamestate)
                     else: # if we hit an illegal move we are able to do a skip (we cannot move through pieces)
-                        if m < 3:
-                            m = 3
-                        elif m < 6:
-                            m = 6
-                        elif m <9:
-                            m = 9
-                        elif m < 12:
+                        if index < 3:
+                            index = 2
+                        elif index < 6:
+                            index = 5
+                        elif index <9:
+                            index = 8
+                        elif index < 12:
                             break
             if gamestate[i][j][1] == 'R':
+                index = -1
                 for m in range (0,12):
+                    index+=1
                     move = rook_moves[m]
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
                     and gamestate[i+move[0]][j+move[1]][0] in  [opposing_piece,'0']:
@@ -69,13 +73,13 @@ def find_legal_moves(gamestate,player):
                         new_gamestate[i+move[0]][j+move[1]] = ('R',player)
                         rook_states.append(new_gamestate)
                     else:
-                        if m < 3:
-                            m = 3
-                        elif m < 6:
-                            m = 6
-                        elif m <9:
-                            m = 9
-                        elif m < 12:
+                        if index < 3:
+                            index = 2
+                        elif index < 6:
+                            index = 5
+                        elif index <9:
+                            index = 8
+                        elif index < 12:
                             break
                         
             if gamestate[i][j][1] == 'Q':
@@ -93,19 +97,21 @@ def find_legal_moves(gamestate,player):
                         new_gamestate[i+move[0]][j+move[1]] = ('Q',player)
                         queen_states.append(new_gamestate)
                     else:
-                        if m < 3:
+                        if index < 3:
                             index = 2
-                        elif m < 6:
+                        elif index < 6:
                             index = 5
-                        elif m <9:
+                        elif index <9:
                             index = 8
-                        elif m <15:
+                        elif index < 12:
+                            index = 11
+                        elif index <15:
                             index = 14
-                        elif m < 18:
+                        elif index < 18:
                             index = 17
-                        elif m < 21:
+                        elif index < 21:
                             index= 20
-                        elif m < 24:
+                        elif index < 24:
                             break
     states = states+queen_states+bishop_states+rook_states+knight_states
     return states
