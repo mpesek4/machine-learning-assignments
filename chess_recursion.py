@@ -130,7 +130,10 @@ def win_in_one(gamestate,moves_left,player):
         if 'winner' in new_gamestates:
             return 'YES'
         for state in new_gamestates:
-            win_in_one(state,moves_left-1, 'b')
+            result = win_in_one(state,moves_left-1, 'b')
+            if result == 'YES':
+                return 'YES'
+    return 'NO'
                     
         
     # figure out all the possible game states
