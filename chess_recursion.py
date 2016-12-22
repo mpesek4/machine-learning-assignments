@@ -1,27 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Dec 19 15:37:05 2016
-
-@author: Michael
-"""
-
 import sys
 import copy
-class Node:
-    def __init__(self, gamestate, parent, children, depth):
-        self.gamestate = gamestate
-        self.parent = parent
-        self.children = children
-        self.player = player
-    def __setChildren__(self,c):
-        self.children = c
-    def __getGamestate(self):
-        return self.gamestate
-    def __goal__(self):
-        return ('b','Q') not in self.gamestate[0] or ('b','Q') not in self.gamestate[1] or \
-            ('b','Q') not in self.gamestate[2]  or ('b','Q') not in self.gamestate[3] 
-        
-       
 def find_legal_moves(gamestate,player):
     # 1: test what kind of piece it is
     # 2: create a process that iterates over all possible moves, and if a move is legal adds a new available gamestate to return
@@ -197,33 +175,49 @@ def find_legal_moves(gamestate,player):
                         break
     states = states+queen_states+bishop_states+rook_states+knight_states
     return states
-def win_in_one(gamestate,moves_left,player):
-    # if it is blacks move, white cannot win in one move, so call the function again on iterations and decrease moves_left
+def win_in_one(gamestate,moves_left,player,d):
     
-    
-    head = Node(gamestate,None, None, 0)
-    d = deque()
-    deque.append(head)
-    depth = 0
-    while deque.maxlen > 0:  # Populate tree with all gamestates
-        head = deque.pop()
-        depth+=1
-        if depth > moves_left:
-            break
-        gamestate = head.getGamestate()
-        children = find_legal_moves(gamestate,'w')
-        c = []
-        for state in children:
-            child = Node(state,head,None,depth)
-            deque.append(child)
-            c.append(child)
-        head.setChildren(c)    
-           
-        
-        
-        
-        
-   
+    if player == 'b':
+            result = []
+            new_gamestates = find_legal_moves(gamestate,player)
+            if moves_left <= 1:
+                return 'NO'
+            if 'loser' in new_gamestates:
+                return 'NO'
+            else:
+                for state in new_gamestates:
+                    
+                
+                    result.append(win_in_one(state,moves_left-1,'w',d))
+                if 'NO' in result:
+                    return 'NO'
+                else:
+                    return 'YES' 
+    elif player == 'w':
+            result = []
+            if moves_left <= 0:
+                return 'NO'
+            new_gamestates = find_legal_moves(gamestate,player)
+            if 'winner' in new_gamestates:
+                return 'YES'
+            if moves_left == 1:
+                return 'NO'
+            for state in new_gamestates:
+                if state in d.values():
+                    continue
+                else:
+                    key = id(state)
+                    d[key] = state
+                
+            
+                result.append(win_in_one(state,moves_left-1,'b',d))
+            if 'YES' in result:
+                return 'YES'
+            else:
+                return 'NO'
+            
+       
+                    
         
     # figure out all the possible game states
 
@@ -271,5 +265,8 @@ for i in range(0,num_of_games):
         board_state[row][col_num] = ('b',piece)
         ### out board state is set up
         ### now we must test whether or not we can win in one move
-    check = win_in_one(board_state, m, 'w')
+    d = {}
+    key = id(board_state)
+    d[key] = board_state
+    check = win_in_one(board_state, m, 'w',d)
     print check
