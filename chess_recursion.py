@@ -7,6 +7,21 @@ Created on Mon Dec 19 15:37:05 2016
 
 import sys
 import copy
+class Node:
+    def __init__(self, gamestate, parent, children, depth):
+        self.gamestate = gamestate
+        self.parent = parent
+        self.children = children
+        self.player = player
+    def __setChildren__(self,c):
+        self.children = c
+    def __getGamestate(self):
+        return self.gamestate
+    def __goal__(self):
+        return ('b','Q') not in self.gamestate[0] or ('b','Q') not in self.gamestate[1] or \
+            ('b','Q') not in self.gamestate[2]  or ('b','Q') not in self.gamestate[3] 
+        
+       
 def find_legal_moves(gamestate,player):
     # 1: test what kind of piece it is
     # 2: create a process that iterates over all possible moves, and if a move is legal adds a new available gamestate to return
@@ -21,8 +36,11 @@ def find_legal_moves(gamestate,player):
         opposing_piece = 'b'
     for i in range(0,4):
         for j in range(0,4):
-            if gamestate[i][j][0] not in [player]:
-                continue
+            try:
+                if gamestate[i][j][0] not in [player]:
+                    continue
+            except:
+                print 'hello'
             knight_moves = [(2,1),(2,-1),(1,2),(1,-2),(-2,1),(-2,-1),(-1,2),(-1,-2)]
             bishop_moves = [(1,1),(2,2),(3,3),(-1,-1),(-2,-2),(-3,-3),(1,-1),(2,-2),(3,-3),(-1,1),(-2,2),(-3,3)]
             rook_moves = [(1,0),(2,0),(3,0),(-1,0),(-2,0),(-3,0),(0,1),(0,2),(0,3),(0,-1),(0,-2),(0,-3)]
@@ -30,12 +48,17 @@ def find_legal_moves(gamestate,player):
             if gamestate[i][j][1] == 'N':
                 for move in knight_moves:
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
-                    and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0']:
-                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w':
+                    and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0'] \
+                    and gamestate[i+move[0]][j+move[1]][0] not in ['w','Q']:
+                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w' and \
+                        gamestate[i+move[0]][j+move[1]][0] == 'b' :
                             knight_states.append('winner')
+                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='b' and \
+                        gamestate[i+move[0]][j+move[1]][0] == 'w':
+                            continue
                         new_gamestate = copy.deepcopy(gamestate)
                         new_gamestate[i][j] = ('0',0)
-                        new_gamestate[i+move[0]][j+move[1]] = ('N',player)
+                        new_gamestate[i+move[0]][j+move[1]] = (player,'N')
                         knight_states.append(new_gamestate)
             if gamestate[i][j][1] == 'B':
                 index = -1
@@ -43,12 +66,17 @@ def find_legal_moves(gamestate,player):
                     index+=1
                     move =  bishop_moves[index] 
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
-                    and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0']:
-                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w':
+                    and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0'] \
+                    and gamestate[i+move[0]][j+move[1]][0]:
+                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w' and \
+                        gamestate[i+move[0]][j+move[1]][0] == 'b':
                             bishop_states.append('winner')
+                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='b' and \
+                        gamestate[i+move[0]][j+move[1]][0] == 'w':
+                            queen_states.append('loser')
                         new_gamestate = copy.deepcopy(gamestate)
                         new_gamestate[i][j] = ('0',0)
-                        new_gamestate[i+move[0]][j+move[1]] = ('B',player)
+                        new_gamestate[i+move[0]][j+move[1]] = (player,'B')
                         bishop_states.append(new_gamestate)
                         if gamestate[i+move[0]][j+move[1]][0] in [opposing_piece]:
                             if index < 3:
@@ -76,12 +104,17 @@ def find_legal_moves(gamestate,player):
                     index+=1
                     move = rook_moves[index]
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
-                    and gamestate[i+move[0]][j+move[1]][0] in  [opposing_piece,'0']:
-                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w':
+                    and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0'] \
+                    and gamestate[i+move[0]][j+move[1]][0]:
+                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w' and \
+                        gamestate[i+move[0]][j+move[1]][0] == 'b':
                             rook_states.append('winner')
+                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='b' and \
+                        gamestate[i+move[0]][j+move[1]][0] == 'w':
+                            queen_states.append('loser')
                         new_gamestate = copy.deepcopy(gamestate)
                         new_gamestate[i][j] = ('0',0)
-                        new_gamestate[i+move[0]][j+move[1]] = ('R',player)
+                        new_gamestate[i+move[0]][j+move[1]] = (player,'R')
                         rook_states.append(new_gamestate)
                         if gamestate[i+move[0]][j+move[1]][0] in [opposing_piece]:
                             if index < 3:
@@ -111,21 +144,37 @@ def find_legal_moves(gamestate,player):
                     queen_moves = bishop_moves+rook_moves
                     move = queen_moves[index]
                     if (i+move[0] <=3 and i+move[0] >=0) and (j+move[1] <=3 and j+move[1] >=0) \
-                    and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0']:
-                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w':
+                    and gamestate[i+move[0]][j+move[1]][0] in [opposing_piece,'0'] \
+                    and gamestate[i+move[0]][j+move[1]][0]:
+                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='w' and \
+                        gamestate[i+move[0]][j+move[1]][0] == 'b':
                             queen_states.append('winner')
+                        ## if black can take whites queen this is a failure
+                        if gamestate[i+move[0]][j+move[1]][1] == 'Q' and player =='b' and \
+                        gamestate[i+move[0]][j+move[1]][0] == 'w':
+                            queen_states.append('loser')
                         new_gamestate = copy.deepcopy(gamestate)
                         new_gamestate[i][j] = ('0',0)
-                        new_gamestate[i+move[0]][j+move[1]] = ('Q',player)
+                        new_gamestate[i+move[0]][j+move[1]] = (player,'Q')
                         queen_states.append(new_gamestate)
                         if gamestate[i+move[0]][j+move[1]][0] in [opposing_piece]:
+                            
                             if index < 3:
+                               
                                 index = 2
                             elif index < 6:
                                 index = 5
                             elif index <9:
                                 index = 8
                             elif index < 12:
+                                index = 11
+                            elif index <15:
+                                index = 14
+                            elif index < 18:
+                                index = 17
+                            elif index < 21:
+                                index= 20
+                            elif index < 24:
                                 break
                     else:
                         if index < 3:
@@ -144,34 +193,37 @@ def find_legal_moves(gamestate,player):
                             index= 20
                         elif index < 24:
                             break
-                if index == 23:
-                    break
+                    if index == 23:
+                        break
     states = states+queen_states+bishop_states+rook_states+knight_states
     return states
 def win_in_one(gamestate,moves_left,player):
     # if it is blacks move, white cannot win in one move, so call the function again on iterations and decrease moves_left
-    if player == 'b':
-        if moves_left == 1 or moves_left == 0:
-            return 'NO'
-        new_gamestates = find_legal_moves(gamestate,player)
-        for state in new_gamestates:
-            result = win_in_one(state,moves_left-1, 'w')
-            if result == 'YES':
-                return 'YES'
-    else:
-        if moves_left == 0:
-            return 'NO'
-        new_gamestates = find_legal_moves(gamestate,player)
-        if 'winner' in new_gamestates:
-            return 'YES'
-        if moves_left == 1:
-            return 'NO'
-        for state in new_gamestates:
-            result = win_in_one(state,moves_left-1, 'b')
-            if result == 'YES':
-                return 'YES'
-    return 'NO'
-                    
+    
+    
+    head = Node(gamestate,None, None, 0)
+    d = deque()
+    deque.append(head)
+    depth = 0
+    while deque.maxlen > 0:  # Populate tree with all gamestates
+        head = deque.pop()
+        depth+=1
+        if depth > moves_left:
+            break
+        gamestate = head.getGamestate()
+        children = find_legal_moves(gamestate,'w')
+        c = []
+        for state in children:
+            child = Node(state,head,None,depth)
+            deque.append(child)
+            c.append(child)
+        head.setChildren(c)    
+           
+        
+        
+        
+        
+   
         
     # figure out all the possible game states
 
