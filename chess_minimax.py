@@ -6,8 +6,62 @@ class Node:
         self.gamestate = gamestate
         self.parent = parent
         self.children = children
-        self.score = -1
+       
         self.depth = depth
+        self.score = self.heuristic()
+    def heuristic(self):
+        if self.parent== None:
+            return 0
+        previous_state = self.parent.getGamestate()
+        minor_pb = 0
+        minor_pw = 0
+        rook_pw = 0
+        rook_pb = 0
+        if self.isGoal():
+            return 100
+        for square in previous_state[0]+previous_state[1]+previous_state[2]+previous_state[3]:
+            if (square == ('w','R')):
+                rook_pw +=1
+            if (square == ('b','R')):
+                rook_pb +=1
+            if (square == ('w','N')):
+                minor_pw +=1
+            if (square == ('b','N')):
+                minor_pb +=1    
+            if (square == ('w','B')):
+                minor_pw +=1
+            if (square == ('b','B')):
+                minor_pb +=1     
+        rook_cw = 0
+        rook_cb = 0
+        minor_cw = 0
+        minor_cb = 0
+        for square in self.getGamestate()[0]+self.getGamestate()[1]+self.getGamestate()[2]+self.getGamestate()[3]:
+            if (square == ('w','R')):
+                rook_cw +=1
+            if (square == ('b','R')):
+                rook_cb +=1
+            if (square == ('w','N')):
+                minor_cw +=1
+            if (square == ('b','N')):
+                minor_cb +=1    
+            if (square == ('w','B')):
+                minor_cw +=1
+            if (square == ('b','B')):
+                minor_cb +=1     
+        total_parent_white = minor_pw+rook_pw
+        total_parent_black = minor_pb+rook_pb
+        total_current_white = rook_cw+minor_cw
+        total_current_black = rook_cb+minor_cb
+        score = 0
+       
+        if total_current_black < total_parent_black:
+            score+=10
+        if total_current_white < total_parent_white:
+            score-=10
+        
+            
+        return score
     def setScore(self,score):
         self.score= score
     def getScore(self):
@@ -187,7 +241,7 @@ def find_legal_moves(gamestate,player):
                         break
     states = states+queen_states+bishop_states+rook_states+knight_states
     return states
-def minimax(node, depth , maximizingPlayer):
+def minimax(node, depth ,alpha,beta, maximizingPlayer):
     if depth == 0 or node.getChildren() == None:
         
         return node.getScore()
@@ -195,14 +249,20 @@ def minimax(node, depth , maximizingPlayer):
     if maximizingPlayer:
         bestValue = -1
         for child in node.getChildren():
-            v = minimax(child,depth-1, False)
+            v = minimax(child,depth-1,alpha,beta, False)
             bestValue = max(bestValue,v)
+            alpha = max(alpha, v)
+            if beta <= alpha:
+                break
         node.setScore(bestValue)
     else:
         bestValue = 1
         for child in node.getChildren():
-            v = minimax(child,depth-1, True)
+            v = minimax(child,depth-1,alpha,beta, True)
             bestValue = min(bestValue,v)
+            beta = min(beta,v)
+            if beta <=alpha:
+                break
         node.setScore(bestValue)
 
         
@@ -210,11 +270,16 @@ def win_in_one(gamestate,moves_left,player,d):
     
    head = Node(gamestate,None, None, 0)
    root = head
-   d = deque()
+   d = []
    d.append(head)
    depth = 0
    while len(d) > 0:  # Populate tree with all gamestates
-       head = d.pop()
+      
+      
+               
+       head = d[-1]
+       d = d[0:-1]
+
        depth = head.getDepth()
        depth = depth+1
        
@@ -229,9 +294,9 @@ def win_in_one(gamestate,moves_left,player,d):
        children = find_legal_moves(gamestate,player)
        if depth == moves_left or head.isGoal():
            if head.isGoal():
-               head.setScore(1)
-           else:
-               head.setScore(-1)
+               head.setScore(100)
+#           else:
+#               head.setScore(-1)
            
        if head.isGoal():
            continue
@@ -239,19 +304,22 @@ def win_in_one(gamestate,moves_left,player,d):
        for state in children:
            child = Node(state,head,None,depth)
            if child.isGoal():
-               child.setScore(1)
-           else:
-               child.setScore(-1)
+               child.setScore(100)
+#           else:
+#               child.setScore(-100)
            if depth <= moves_left+1:
-               d.append(child)
                c.append(child)
-           
+               
+       # for child in c, order them by heuristic and add to queue in order
+       c.sort(key =lambda x: x.getScore())
+       for item in c:
+           d.append(item)
        
        head.setChildren(c)    
          
-   g = minimax(root,moves_left,True)
-   print root.getScore()
-   if root.getScore() == 1:
+   g = minimax(root,moves_left,-100,100,True)
+   #print root.getScore()
+   if root.getScore() == 100:
        return 'YES'
    else:
        return 'NO'
