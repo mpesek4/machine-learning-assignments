@@ -12,12 +12,11 @@ public class solution {
   
      public static double solve(int[] arr, int N, int K) {
     	 double answer = 0;
+    	 int val = 1- K;
     	 for(int i = 0;i<K;i++){
-    		 for(int j = i+1;j<K;j++){
-    			 if(i==j)continue;
-    		     answer+= arr[j] -arr[i];
-		 
-    		 }
+    		 answer+= val*arr[i];
+    		 val+=2;
+    	 
     	 }
     	 double global_answer = answer;
     	 int[] sum_arr = new int[N];
@@ -46,8 +45,7 @@ public class solution {
         for(int i = 0; i < N; i++)
          arr[i] = Integer.parseInt(br.readLine());
         Arrays.sort(arr);
-        int first_index = 0;
-        
+       
         double x = solve(arr,N,K);
         
         
