@@ -36,7 +36,7 @@ public class solution {
 	            int running_sum = 0;
 	            int[]b = new int [n];
 	            for(int z = 0;z<n;z++){b[z] = Integer.MIN_VALUE;}
-	            int answer = findMaxSub(a,running_sum,n-1,b);
+	            int answer = findMaxSub(a,running_sum,n-1);
 	            
 	            System.out.print(answer + " ");
 	            int second_sum = 0;
@@ -57,45 +57,41 @@ public class solution {
     	
 	        
     }
-    public static int findMaxSub(int[] a, int sum,int end, int[] b){
-        if (!(b[end] == Integer.MIN_VALUE)){ return b[end];}
+  public static int findMaxSub(int[] a, int sum,int end){
+        
         if(end == 0){
-            if(a[0] >=0){
-                b[0] = a[0]+sum;
-                return b[0];
-            }
-            else{
-            	b[0] = a[0]+sum;
-                return b[0];
-            } 
+          
+                return a[0]+sum;
+           
+            
         }
         
         if(a[end] < 0 && -1*a[end] <= sum ){ 
-        	int c[] = new int[end];
+       
         	
             int temp =  sum;
             sum = sum + a[end];
-            int value = findMaxSub(a,sum,end-1,b);
-            b[end] = Math.max(sum,value);
-            if(sum ==0 && value < 0){b[end] = value;}
+            int value = findMaxSub(a,sum,end-1);
+            sum = Math.max(sum,value);
+            
         }
         else if(a[end] < 0 && -1*a[end] >sum){
-        	int c[] = new int[end];
+        	
         	
         	sum = sum+a[end];
-            int value = Math.max(sum,findMaxSub(a,0,end-1,b));
-            b[end]= Math.max(sum,value); 
-            if(sum ==0 && value < 0){b[end] = value;}
+            int value = Math.max(sum,findMaxSub(a,0,end-1));
+            sum =Math.max(sum,value); 
+          
         }
         else{
-        	int c[] = new int[end];
+        	
         
             sum = sum +a[end];
-            int value = findMaxSub(a,sum,end-1,b);
-            b[end] = Math.max(sum, value);
-            if(sum ==0 && value < 0){b[end] = value;}
+            int value = findMaxSub(a,sum,end-1);
+            sum= Math.max(sum, value);
+           
         }
-        return b[end];                               
+        return sum;                               
         
         
     }
