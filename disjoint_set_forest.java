@@ -50,9 +50,9 @@ public static void union(djNode x, djNode y){
 class pair implements Comparable<pair> {
 	int x;
 	int y;
-	LinkedList<djNode> list;
+	djNode[] nodeArray;
 
-pair(int x,int y, LinkedList<djNode> list){this.x =x;this.y=y;this.list = list;}
+pair(int x,int y, djNode[] narray){this.x =x;this.y=y;this.nodeArray = narray;}
 
 public int compareTo(pair p2){
     
@@ -65,18 +65,18 @@ public int compareTo(pair p2){
 	int y1;
 	int y2;
 	// Our comparison has to find the set each friend is in and the size of that set, takes the max of x,y pair set sizes
-	djNode p1x = djNode.findSet(list.get(this.x-1));
+	djNode p1x = djNode.findSet(this.nodeArray[this.x-1]);
 	x1 = djNode.getSize(p1x);
-	djNode p1y = djNode.findSet(list.get(this.y-1));
+	djNode p1y = djNode.findSet(this.nodeArray[this.y-1]);
 	y1 = djNode.getSize(p1y);	
 	int total_p1 = 0;
 	if(p1x!=p1y)total_p1 = x1+y1;
 	
 	
 	
-	djNode p2x = djNode.findSet(list.get(p2.x-1));
+	djNode p2x = djNode.findSet(this.nodeArray[p2.x-1]);
 	x2 = djNode.getSize(p2x);
-	djNode p2y = djNode.findSet(list.get(p2.y-1));
+	djNode p2y = djNode.findSet(this.nodeArray[p2.y-1]);
 	y2 = djNode.getSize(p2y);	
 	int total_p2 = 0;
 	if(p2x!=p2y)total_p2 = x2+y2;
@@ -99,31 +99,33 @@ public class Solution {
 	            int n = in.nextInt();
 	            int m = in.nextInt();
 	            pair[] pairs = new pair[m];
-	            LinkedList<djNode> forest = new LinkedList<djNode>();
+	            
+                djNode[] nodeArray = new djNode[n];
+                for(int a2 = 0;a2<n;a2++){
+	                djNode temp = new djNode(a2);
+	                nodeArray[a2]= temp;
+	            }
 	            for(int a1 = 0; a1 < m; a1++){
 	                int x = in.nextInt();
 	                int y = in.nextInt();
-	                pairs[a1] = new pair(x,y,forest);  
+	                pairs[a1] = new pair(x,y,nodeArray);  
 	            }
 	            
-	            for(int a2 = 1;a2<n+1;a2++){
-	                djNode temp = new djNode(a2);
-	                forest.add(temp);
-	            }
+	     
 	            long total = 0; // keep track of total friends after each iteration
 	            for(int i = 0; i<m;i++){
 	                Arrays.sort(pairs);
 	                pair correctPair = pairs[m-1];
 	                // Create a friendship between the two friends represented by correctpair
 	                // this is joining the sets they are in
-	                djNode nodeX = forest.get(correctPair.x-1);
-	                djNode nodeY = forest.get(correctPair.y-1);
+	                djNode nodeX = nodeArray[correctPair.x-1];
+	                djNode nodeY = nodeArray[correctPair.y-1];
 	                if(djNode.findSet(nodeX) != djNode.findSet(nodeY)){
 	                	djNode.union(nodeX,nodeY);
 	                }
 	                int size = Math.max(djNode.getSize(nodeX),djNode.getSize(nodeY));
 	                total+= size*(size-1);
-	                pairs[m-1] = new pair(-1,-1,forest);
+	                pairs[m-1] = new pair(-1,-1,nodeArray);
 	            }
 	            
 	            System.out.println(total);
