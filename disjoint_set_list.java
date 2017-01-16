@@ -3,175 +3,206 @@ import java.util.*;
 import java.text.*;
 import java.math.*;
 import java.util.regex.*;
-class djNode {
-	djNode parent;
+class pair implements Comparable<pair>{
+	int x;
+	int y;
+	int height;
 	int size;
-	int rank;
-	int friend;
+	
 
+pair(int x, int y) {this.x =x;this.y=y;}
+public int getX(){return this.x;}
+public int getY(){return this.y;}
+public void setSize(int x){this.size= x;}
+public void setHeight(int x){this.height=x;}
+@Override
+public int compareTo(pair p2) {
+	if(this.size > p2.size) return -1;
+	else if(this.size < p2.size) return 1;
+	else if(this.height > p2.height) return -1;
+	else if(this.height < p2.height) return 1;
+	else return 0;	
+}
+}
+class djset {
+	djNode head;
+	djNode tail;
+	int size;
+
+djset(djNode x){
+	this.head =x;
+	this.tail=x;
+	this.size =1;
+}
+public int getSize(){return this.size;}
+}
+class djNode {
+	int friend;
+	int height;
+	djset set;
+	djNode next;
+/*this.head =x;
+	this.tail=x;
+	this.size =1;*/
 djNode(int friend){
-	this.parent= this;
-	this.size = 1;
-	this.rank = 0;
-	this.friend = friend;
+	this.height = 1;
+	this.set = new djset(this);	
+	this.friend=friend;
+	this.next= null;
 }
-public static int getSize(djNode x){
-	return x.size;
-}
-public static int getFriend(djNode x){
-	return x.friend;
-}
-public static djNode findSet(djNode x){
-	if(x!=x.parent)x.parent = findSet(x.parent);
-	return x.parent;
+public int getHeight(){return this.height;}
+public int getFriend(){return this.friend;}
+public static djset findSet(djNode x){
+	return x.set;
 }
 public static void link(djNode x, djNode y){
-	if( x.rank > y.rank){
-		y.parent = x;
-		y.friend = x.friend;
-		int temp = x.size;
-		x.size+= y.size;
-		y.size+=temp;
+	if(x.set.getSize() <= y.set.getSize()){ // append x to back of y
+		djNode head = x.set.head;
+		djNode end_of_y = y.set.tail;
+		end_of_y.next = head;
+		end_of_y.next.height = end_of_y.height+1;
+		y.set.size+=x.set.size;
+		for(int i = 0; i<x.set.size;i++){			
+			head.set = y.set;
+			if(head.next==null){
+				continue;
+			}
+			head.next.height=head.height+1;
+			head= head.next;
+		}
+		y.set.tail = head;
+		
 	}
-	else{
-		x.parent = y;
-		x.friend=y.friend;
-		if(x.rank == y.rank) y.rank++;
-		int temp =  y.size;
-		y.size+=x.size;
-		x.size+=temp;
+	else if (x.set.getSize()> y.set.getSize()){ // append y to back of x
+		djNode head = y.set.head;
+		djNode end_of_x = x.set.tail;
+		end_of_x.next = head;
+		end_of_x.next.height = end_of_x.height;
+		for(int i = 0; i<y.set.size;i++){
+			head.set = x.set;
+			if(head.next == null)break;
+			head.next.height=head.height+1;
+			head= head.next;
+		}
+		x.set.tail = head;
+		x.set.size += y.set.size;
 	}
 }
 public static void union(djNode x, djNode y){
-	link(findSet(x),findSet(y));
-}
-}
-class pair {
-	int x;
-	int y;
-
-pair(int x, int y) {this.x =x;this.y=y;}
-}
-class stackWithSize implements Comparable<stackWithSize> {
-    Stack<Integer> s;
-	int n;
-	int rep;
-	
-	
-stackWithSize(Stack<Integer> s, int n,int rep){this.s = s;this.n =n;this.rep=rep;}
-
-public void incrementStack(){this.n++;}
-public int getRep(){return this.rep;}
-public boolean checkEmpty(){ return this.s.empty();}
-public int  popElement(){
-	if(this.s.empty()) return -1;
-	int y = this.s.pop();
-	return y;
-}
-public int compareTo(stackWithSize s2){
-	if(this.n > s2.n) return -1;
-	else if(this.n < s2.n) return 1;
-	else return 0;
-}
-
-public void pushElement(int y) {
-	this.s.push(y);
-	this.n++;
-	
+	link(x,y);
 }
 }
 public class Solution {
 
     public static void main(String[] args) {
-       Scanner in = new Scanner(System.in);
-        int t = in.nextInt();
+      
+		Scanner in = new Scanner(System.in);	
+        long t = in.nextLong();
         for(int a0 = 0; a0 < t; a0++){
-            int n = in.nextInt();
-            int m = in.nextInt();
-            pair[] pairs = new pair[m];            
-            djNode[] nodeArray = new djNode[n];
-            stackWithSize[] stackList = new stackWithSize[n];
-            int[] stackSize = new int[n];
-            for(int a2 = 0;a2<n;a2++){
+        	
+            long n = in.nextLong();
+            long m = in.nextLong();
+            pair[] pairs = new pair[(int) m+1];            
+            djNode[] nodeArray = new djNode[(int) (n+1)];                
+            for(int a2 = 1;a2<n+1;a2++){
                 djNode temp = new djNode(a2);
-                nodeArray[a2]= temp;
-                Stack<Integer> tstack = new Stack<Integer>();
-                stackWithSize myStack = new stackWithSize(tstack,0,a2);
-                stackList[a2] = myStack;
+                nodeArray[a2]= temp;         
             }
-            for(int a1 = 0; a1 < m; a1++){
+            for(int a1 = 1; a1 < m+1; a1++){ // this loop parses data and then creates our friendship if they are not already friends
+            	
                 int x = in.nextInt();
                 int y = in.nextInt();
-                pairs[a1] = new pair(x,y);
-                stackList[x].pushElement(y);
-                stackList[y].pushElement(x);  
+                djNode nodeX = nodeArray[x];
+            	djNode nodeY = nodeArray[y];
+            	pairs[a1] = new pair(x,y);
+            	if(djNode.findSet(nodeX) == djNode.findSet(nodeY)){
+            		continue;
+            	}
+            	else{
+            		djNode.union(nodeX,nodeY);
+            	}
             }
-            Arrays.sort(stackList);
-            int[] orderArray= new int[n];
-            // iterate over the sort list so we know what order the sets were turned into by examining their representative variable
-            for(int x1 = 0; x1<n;x1++){
-            	orderArray[x1] = stackList[x1].getRep();
+            for(int a3 = 1;a3<m+1;a3++){ // this loop gives pairs height and sizes to help sort (we want to choose the deepest
+            	                        // element from the biggest tree first, then ignore all the other elements because
+            	                       // we have built that tree and move on to the next tree
+            	                      // this process gives us all our relevant links, then we do the rest of the links in arbitrary order
+            	                     // which is just the same calculation x times, the link info doesn't even matter
+            	int x = pairs[a3].getX();
+            	int y = pairs[a3].getY();
+            	djNode nodeX = nodeArray[x];
+            	djNode nodeY = nodeArray[y];
+            	// our set lists are all built
+            	// when we look at a pair we need to choose the biggest set and biggest height
+            	int size_x = nodeX.set.getSize();
+            	int size_y = nodeY.set.getSize();
+            	int size = Math.max(size_x,size_y);
+            	int height;
+            	if(size ==size_x)  height = nodeX.getHeight();
+            	else height = nodeY.getHeight();
+                pairs[a3].setSize(size);
+                pairs[a3].setHeight(height);         
             }
-            // procedure works thus: remove all elements from the most filled stack, maintaining a "next stack" of these elements
-            // to figure out order of stacks to deplete next, keep going until no elements left to remove
-            // since elements xy are same as yx, we keep track ina  hashmap to see if element was already seen
+            pairs[0]= new pair(-1,-1);
+            Arrays.sort(pairs);
             
-            Queue<Integer> nextQueue = new LinkedList<Integer>();         
-            HashMap<Integer,pair> mymap = new HashMap<Integer,pair>();
-            int count = 0;
-            for(int j = 0;j<n;j++){
-            	if(count == n-1) break;
-            	int current = stackList[j].getRep();
-            	while(stackList[j].checkEmpty() == false){
-            		if(count == n) break;
-            		pair t1 = new pair(-1,-1);
-            		int xb =current;
-            		int yb= stackList[j].popElement();
-            		if(xb > yb)  t1 = new pair(yb,xb);
-                	if(xb < yb)  t1 = new pair(xb,yb);
-                	int code = t1.hashCode();
-                	if(mymap.get(code) == null){
-                		mymap.put(code,t1);
-                		pairs[count] = t1;
-                		count++;
-                		if(count==n)break;
-                		nextQueue.add(yb);
-                	}           	          		
+            
+            // sorted by an element belongs to the largest set, if both belong we prioritize lowest rank because we are going
+            // to start from root and link up to top for each set, once we get to head of set, we store that we are done with that
+            // set in a hashmap and overlook any more pairs that are from that set because they don't increase length
+            // and do those at the end
+            HashSet<djset> setsFinished = new HashSet<djset>();
+            LinkedList<Integer> setSizes = new LinkedList<Integer>();
+            int non_adds = 0;
+            int index = 0;
+            for(int a4 = 0;a4<m;a4++){
+            	
+            	int x = pairs[a4].getX();
+            	int y = pairs[a4].getY();
+            	if(x==-1)continue;
+            	djNode nodeX = nodeArray[x];
+            	djNode nodeY = nodeArray[y];
+            	djset currentSet = djNode.findSet(nodeX);
+            	if(setsFinished.contains(currentSet)){
+            		continue;
             	}
-            	while(!(nextQueue.poll() == null)){
-            		if(count==n-1)break;
-            		int curr = nextQueue.remove();
-                	pair tmp = new pair(-1,-1);
-                	int xc = stackList[curr].getRep(); // x value of our pair is just the rep, y value is the stack value
-                	int yc = stackList[curr].popElement();
-                	if(yc == -1) continue;
-                	if(xc > yc)  tmp = new pair(yc,xc);
-                	if(xc < yc)  tmp = new pair(xc,yc);
-                	int code = tmp.hashCode();
-                	if(mymap.get(code) == null){
-                		mymap.put(code,tmp);
-                		pairs[count] = tmp;
-                		count++;
-                		if(count==n-1)break;
-                		nextQueue.add(yc);
-                	}           	
+            	djNode leaf = nodeX;
+            	if(nodeX.getHeight() > nodeY.getHeight()) leaf = nodeX.set.head;
+            	else leaf = nodeY.set.head;
+            	while(leaf.next!=null){ // after this loop, our biggest Set is filled, it takes 3 connections to make this set
+            		pair newLink = new pair(leaf.getFriend(),leaf.next.getFriend());
+            		pairs[index] = newLink;
+            		index++;
+            		leaf = leaf.next;
             	}
+            	setSizes.add(currentSet.size);
+            	setsFinished.add(currentSet);          
             }
-            long total = 0; // keep track of total friends after each iteration
-            for(int i = 0; i<m;i++){
-                pair correctPair = pairs[i];
-                // Create a friendship between the two friends represented by correctpair
-                // this is joining the sets they are in
-                djNode nodeX = nodeArray[correctPair.x-1];
-                djNode nodeY = nodeArray[correctPair.y-1];
-                if(djNode.findSet(nodeX) != djNode.findSet(nodeY)){
-                	djNode.union(nodeX,nodeY);
-                }
-                int size = Math.max(djNode.getSize(nodeX),djNode.getSize(nodeY));
-                total+= size*(size-1);                
-            }          
-            System.out.println(total);
-        } // outer for
-        
+            //we now have a list in descending order of the sizes of our friend groups
+            // algorithm to computer total in loop below
+            int total = 0;
+            int pairs_used = 0;
+            int prev_total = 0;
+            while(!setSizes.isEmpty()){
+            	int current_set_size = setSizes.removeFirst();
+            	int rtotal = 0;
+            	for(int i = 1;i<current_set_size;i++){
+            		rtotal+= (i * (i+1));
+            		prev_total =i * (i+1);
+            		rtotal+=total;
+            		pairs_used++;			
+            	}
+            	total+=rtotal;
+            }
+            total+= prev_total * (m-pairs_used);
+            /*
+            int total_pre_redundancy = total;
+            // now we may have used less pairs than given, all the others are reduntant and we add them at end with no change to total
+            // other than adding previous biggest totals
+            for(int y = 0;y<(m-pairs_used);y++){
+            	total+= total_pre_redundancy;	
+            }
+            */
+          System.out.println(total);
+        }
     }
 }
