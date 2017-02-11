@@ -8,7 +8,7 @@ class LearningAgent(Agent):
     """ An agent that learns to drive in the Smartcab world.
         This is the object you will be modifying. """ 
 
-    def __init__(self, env, learning=True, epsilon=1.0, alpha=0.5):
+    def __init__(self, env, learning=True, epsilon=1.0, alpha=0.18):
         super(LearningAgent, self).__init__(env)     # Set the agent in the evironment 
         self.planner = RoutePlanner(self.env, self)  # Create a route planner
         self.valid_actions = self.env.valid_actions  # The set of valid actions
@@ -23,7 +23,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Set any additional class parameters as needed
-
+        self.trial_num = math.pow(30,.5)
 
     def reset(self, destination=None, testing=False):
         """ The reset function is called at the beginning of each trial.
@@ -39,7 +39,12 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
-        self.epsilon = self.epsilon - 0.05
+        
+        self.epsilon = math.pow(self.trial_num,-2)*30
+        self.trial_num = self.trial_num+.25555
+        if testing == True:
+            self.epsilon = 0
+            self.alpha = 0
         return None
 
     def build_state(self):
@@ -59,7 +64,7 @@ class LearningAgent(Agent):
         # When learning, check if the state is in the Q-table
         #   If it is not, create a dictionary in the Q-table for the current 'state'
         #   For each action, set the Q-value for the state-action pair to 0
-        state = (waypoint,inputs['light'],inputs['oncoming'],inputs['left'],inputs['right'])
+        state = (waypoint,inputs['light'],inputs['oncoming'],inputs['left'])
         value = self.Q.setdefault(state, {None: 0, 'left':0,'right': 0,'forward':0})
         
         
@@ -78,7 +83,7 @@ class LearningAgent(Agent):
 
         direction = max(self.Q[state], key = lambda key: self.Q[state][key])
         maxQ = self.Q[state][direction]
-
+        
         return maxQ 
 
 
@@ -119,7 +124,9 @@ class LearningAgent(Agent):
             print action_i, "action i"
             if self.Q[state][action_i] == maxQ:
                 max_actions.append(action_i)
-        action = random.choice(max_actions)  
+        action = random.choice(max_actions)
+        if random.random() < self.epsilon:
+            action = random.choice(self.Q[state].keys())
         print action, "action chosen"
         return action
 
@@ -179,6 +186,7 @@ def run():
     # Follow the driving agent
     # Flags:
     #   enforce_deadline - set to True to enforce a deadline metric
+    enforce_deadline = True
     env.set_primary_agent(agent)
 
     ##############
@@ -190,13 +198,16 @@ def run():
     #   log_metrics  - set to True to log trial and simulation results to /logs
     log_metrics = True
     #   optimized    - set to True to change the default log file name
+    optimized = True
     sim = Simulator(env)
     
     ##############
     # Run the simulator
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05 
+    tolerance = .01
     #   n_test     - discrete number of testing trials to perform, default is 0
+    n_test = 10
     sim.run()
 
 
