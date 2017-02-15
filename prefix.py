@@ -21,7 +21,7 @@ with open("input_file.txt") as f:
 s.sort(lambda x,y: cmp(len(y),len(x)))
 my_trie = dict()
 secondary_trie = dict()
-# method that creates a dictionary
+# method that creates a trie with nested dictionaries, we know a branch is a word if that dictionary contains "_end"
 def add_to_trie(word, my_trie):
     current_dict = my_trie
     for char in word:
@@ -77,7 +77,7 @@ for word in s:
 answer = []        
 root_lvl = my_trie.keys()
 flagmap = {}
-for element in root_lvl:
+for element in root_lvl: # Multiple roots depending on how many alphabet letters are used as begining of words
     dfs(my_trie[element],'black',element,answer,flagmap)
 
 total = 0
