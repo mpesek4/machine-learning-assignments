@@ -1,6 +1,16 @@
 
 
-import sys
+'''
+This program takes in a list of word and creates a subset of those words that hold the following properties:
+    1. no words in the subset are prefix neighbors IN **THE ORIGINAL SET** ie, [a,ab,abc]
+      a,abc is a proper subset because although a is a prefix neighbor of abc, ab is inbetween in the original set
+     2. the ordinal sum of the subset is maximized, ie no better solution
+     
+     prefix neighbor definition:  A and C are prefix neighbors if A is a prefix of C and
+                     if no B exists in original set, where A is a prefix of B
+                 and B is a prefix of C.
+
+'''
 from sets import Set
 from collections import deque
 _end = '_end_'
