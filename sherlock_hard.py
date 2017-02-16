@@ -46,7 +46,7 @@ start = p
 index = p_q[0]
 found = False
 while index < arr[0]:
-    # first check is making sure all values between P and arr[0] maximize our function
+    # first check is making sure any values between P and arr[0] maximize our function
     if abs(index- arr[0]) >= maximized_min_diff:
         optimal=index
         maximized_min_diff = abs(index- arr[0])
@@ -55,7 +55,7 @@ while index < arr[0]:
 index = p_q[-1]
 
 while index > arr[-1] and index>= p_q[0]:
-    # second check is to make sure all numbers between arr[-1] and Q maximize our function
+    # second check is to make sure any numbers between arr[-1] and Q maximize our function
     if index - arr[-1] > maximized_min_diff:
         optimal = index
         break
