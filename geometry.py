@@ -1,19 +1,36 @@
-#!/bin/python
+
 from __future__ import print_function
 import sys
 import math
+from fractions import Fraction
+w,h = raw_input().strip().split(' ')
+w,h = [int(w),int(h)]
+circleX,circleY,r = raw_input().strip().split(' ')
+circleX,circleY,r = [int(circleX),int(circleY),int(r)]
+circleX = Fraction(circleX)
+circleY = Fraction(circleY)
+r= Fraction(r)
+x1,y1,x3,y3 = raw_input().strip().split(' ')
+x1,y1,x3,y3 = [int(x1),int(y1),int(x3),int(y3)]
+x1 = Fraction(x1)
 
-w,h = 20,16
+x3 = Fraction(x3)
+y1 = Fraction(y1)
+y3 = Fraction(y3)
 
-circleX,circleY,r = 100,100,1
+# your code goes here
 
-x1,y1,x3,y3 = 6,8,4,2
-
+def power_of(x,y):
+    i=x
+    for j in range(0,y-1):
+        i = i*x
+    return i
+    
 def in_Circle(x,y,circleX,circleY,r):
     # function that checks whether or not a cartesian point is inside a defined circle
     # euclidean distance from point to center of circle must be <= r
-    e_distance_squared = math.pow(x-circleX,2)+math.pow(y-circleY,2)
-    r_squared = math.pow(r,2)
+    e_distance_squared = power_of(x-circleX,2)+power_of(y-circleY,2)
+    r_squared = power_of(r,2)
     if(e_distance_squared <= r_squared):
         return True
     else:
@@ -21,20 +38,20 @@ def in_Circle(x,y,circleX,circleY,r):
 def in_Square(x1,y1,x3,y3):
     #populate a table with the pixels that are blackened
     explored = set()
-    if float(y3-y1)/(x3-x1) == 1 or float(y3-y1)/(x3-x1) == -1:
+    if x1!=x3 and (y3-y1)/(x3-x1) == 1 or (y3-y1)/(x3-x1) == -1:
         # square is not angled, can just do an easy loop
         startx = min(x3,x1)
         endx = max(x3,x1)
         starty = min(y3,y1)
         endy = max(y3,y1)
-        for i in range(startx,endx+1):
-            for j in range(starty,endy+1):
+        for i in range(int(startx),int(endx+1)):
+            for j in range(int(starty),int(endy+1)):
                 explored.add((i,j))
         return explored       
-    midpoint_x = float(x1+x3) / 2
-    midpoint_y = float(y1+y3) / 2
-    change_in_y = abs(y3-midpoint_y)
-    change_in_x = abs(x3-midpoint_x)
+    midpoint_x = (x1+x3) / Fraction(2)
+    midpoint_y = (y1+y3) / Fraction(2)
+    change_in_y = midpoint_y-y1
+    change_in_x = midpoint_x-x1
     # translate to new points
     if x1 ==x3 or y1 == y3:
         x2 = midpoint_x+(midpoint_y-y1)
@@ -51,42 +68,19 @@ def in_Square(x1,y1,x3,y3):
         y2 = midpoint_y-(change_in_x)    
         x4 = midpoint_x-(change_in_y)
         y4 = midpoint_y+(change_in_x)
-    elif x1 > x3 and y1 < y3:
-        temp = x1
-        x1 = x3
-        x3 = temp
-        temp = y1
-        y1 = y3
-        y3 = temp
-        midpoint_x = float(x1+x3) / 2
-        midpoint_y = float(y1+y3) / 2
-        change_in_y = abs(y3-midpoint_y)
-        change_in_x = abs(x3-midpoint_x)
-        x2 = midpoint_x+(change_in_y)
-        y2 = midpoint_y-(change_in_x)    
-        x4 = midpoint_x-(change_in_y)
-        y4 = midpoint_y+(change_in_x)
-#        temp = x2
-#        x2 = x4
-#        x4 = temp
-#        temp = y2
-#        y2 = y4
-#        y4 = temp
+    elif x1 > x3 and y1 < y3:       
+        x2 = midpoint_x+change_in_y
+        y2 = midpoint_y-change_in_x
+        x4 = midpoint_x-change_in_y
+        y4 = midpoint_y+change_in_x
+            
+         
+
     else:
-        temp = x1
-        x1 = x3
-        x3 = temp
-        temp = y1
-        y1 = y3
-        y3 = temp
-        midpoint_x = float(x1+x3) / 2
-        midpoint_y = float(y1+y3) / 2
-        change_in_y = abs(y3-midpoint_y)
-        change_in_x = abs(x3-midpoint_x)
-        x2 = midpoint_x-(change_in_y)
-        y2 = midpoint_y+(change_in_x)    
-        x4 = midpoint_x+(change_in_y)
-        y4 = midpoint_y-(change_in_x)
+        x2 = midpoint_x+change_in_y
+        y2 = midpoint_y-change_in_x
+        x4 = midpoint_x-change_in_y
+        y4 = midpoint_y+change_in_x
 #        temp = x2
 #        x2 = x4
 #        x4 = temp
@@ -95,23 +89,103 @@ def in_Square(x1,y1,x3,y3):
 #        y4 = temp
     
     explored.add((midpoint_x,midpoint_y))
-    fx1 = int(math.floor(x1))
-    fx2 = int(math.floor(x2))
-    fx3 = int(math.floor(x3))
-    fx4 = int(math.floor(x4))
-    fy1 = int(math.floor(y1))
-    fy2 = int(math.floor(y2))
-    fy3 = int(math.floor(y3))
-    fy4 = int(math.floor(y4))
+#    fx1 = math.floor(x1)
+#    fx2 = imath.floor(x2)
+#    fx3 = int(math.floor(x3))
+#    fx4 = int(math.floor(x4))
+#    fy1 = int(math.floor(y1))
+#    fy2 = int(math.floor(y2))
+#    fy3 = int(math.floor(y3))
+#    fy4 = int(math.floor(y4))
     explored.add((x2,y2))
     explored.add((x1,y1))
     explored.add((x3,y3))
     explored.add((x4,y4))
-    
+    cx1,cx2,cy1,cy2 = x1,x2,y1,y2
+    if (cx2>cx1) and (cy2<cy1):
+        direction = "upright"
+    elif (cx2<cx1) and (cy2<cy1) and (y4>=y1):
+        #upleft
+        # need to change to clockwise
+        temp = x2
+        x2 = x4
+        x4 = temp
+        temp = y2
+        y2 =y4
+        y4=temp
+    elif (cx2 < cx1) and (cy2 > cy1) and (y4>=y1):
+        # downleft need to change to clockwise
+        temp = x2
+        x2 = x4
+        x4 = temp
+        temp = y2
+        y2 =y4
+        y4=temp
+    elif (cx1<cx2) and (cy1<cy2) and (x4>=x1):
+        #downright and need to go clockwise
+        temp = x2
+        x2 = x4
+        x4 = temp
+        temp = y2
+        y2 =y4
+        y4=temp
+    elif cx1<cx2 and cy1>cy2 and x4<=x1:
+        #upright and need to go clockwise
+        temp = x2
+        x2 = x4
+        x4 = temp
+        temp = y2
+        y2 =y4
+        y4=temp
+        
+    else:
+        pass
         
     # going clockwise we need to do x1 to x2, x2 to x3, x3 to x4, and x4 to x1 to check 4 quadrants
     # we also need to know which direction we are going in
-    cx1,cx2,cy1,cy2 = int(fx1),int(fx2),int(fy1),int(fy2)
+    
+    
+    def add_to_set(x1,x2,y1,y2, direction,explored):
+        
+        if direction == "upright": # good upright
+            for i in range(int(math.ceil(x1)),int(math.floor(x2+1))):
+                for j in range(int(math.floor(y2)),int(math.floor(y1+1))):
+                    if i==x1:
+                        continue
+                    if y1==j:
+                        explored.add((i,j))
+                        continue
+                    # if the slope is smaller we add it
+                    if Fraction(j-y1)/(i-x1) >= Fraction(y2-cy1) / (x2-x1):
+                        explored.add((i,j))
+        if direction == "downright": # good? 
+            for i in range(int(math.floor(x1)),int(math.floor(x2+1))):
+                for j in range(int(math.ceil(y1)),int(math.floor(y2+1))):
+                    if i == x1:
+                        explored.add((i,j))
+                        continue
+                    # if the slope is bigger we add it
+                    if Fraction(j-y1)/(i-x1) >= Fraction(y2-y1) / (x2-x1):
+                        explored.add((i,j))
+        if direction == "downleft": # good?
+            for i in range(int(math.floor(x2)),int(math.floor(x1+1))):
+                for j in range(int(math.floor(y1)),int(math.floor(y2+1))):
+                    if i == x2:
+                        explored.add((i,j))
+                        continue
+                    # if the slope is smaller we add it
+                    if Fraction(j-y2)/(i-x2) <= Fraction(y1-y2) / (x1-x2):
+                        explored.add((i,j))   
+        if direction == "upleft":
+            for i in range(int(math.ceil(x2)),int(math.floor(x1+1))):
+                for j in range(int(math.floor(y2)),int(math.floor(y1+1))):
+                    if x1 ==i:
+                        explored.add((i,j))
+                        continue
+                    # if the slope is bigger we add it
+                    if Fraction(j-y1)/(i-x1) >= Fraction(y2-y1) / (x2-x1):
+                        explored.add((i,j))
+    cx1,cx2,cy1,cy2 = x1,x2,y1,y2
     if (cx2>cx1) and (cy2>cy1):
         direction = "downright"
     elif (cx2>cx1) and (cy2<cy1):
@@ -120,46 +194,13 @@ def in_Square(x1,y1,x3,y3):
         direction = "downleft"
     else:
         direction = "upleft"
+        
     
-    if direction == "downright":
-        for i in range(cx1+1,cx2+1):
-            for j in range(cy1,cy2+1):
-                if j == cy1:
-                    explored.add((i,j))
-                    continue
-                # if the slope is bigger we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))
-    if direction == "upright":
-        for i in range(cx1,cx2+1):
-            for j in range(cy1,cy2+1):
-                if cx1==i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is smaller we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))
-    if direction == "upleft":
-        for i in range(cx2,cx1+1):
-            for j in range(cy2+1,cy1+1):
-                if cx2 ==i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is bigger we add it
-                if float(j-cy2)/(i-cx2) >= float(cy1-cy2) / (cx1-cx2):
-                    explored.add((i,j))
-    if direction == "downleft":
-        for i in range(cx2+1,cx1+1):
-            for j in range(cy1,cy2+1):
-              
-                if cx1 == i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is smaller we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))    
+        
+    
+    add_to_set(cx1,cx2,cy1,cy2,direction,explored)                    
                     
-    cx1,cx2,cy1,cy2 = int(fx2),int(fx3),int(fy2),int(fy3)
+    cx1,cx2,cy1,cy2 = x2,x3,y2,y3
     if (cx2>cx1) and (cy2>cy1):
         direction = "downright"
     elif (cx2>cx1) and (cy2<cy1):
@@ -169,43 +210,20 @@ def in_Square(x1,y1,x3,y3):
     else:
         direction = "upleft"
     
-    if direction == "downright":
-        for i in range(cx1+1,cx2+1):
-            for j in range(cy1,cy2+1):
-                if j == cy1:
-                    explored.add((i,j))
-                    continue
-                # if the slope is bigger we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))
-    if direction == "upright":
-        for i in range(cx1,cx2+1):
-            for j in range(cy1,cy2+1):         
-                if cx1==i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is smaller we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))
-    if direction == "upleft":
-        for i in range(cx2,cx1+1):
-            for j in range(cy2+1,cy1+1):
-                if cx2 ==i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is bigger we add it
-                if float(j-cy2)/(i-cx2) >= float(cy1-cy2) / (cx1-cx2):
-                    explored.add((i,j))
-    if direction == "downleft":
-        for i in range(cx2+1,cx1+1):
-            for j in range(cy1,cy2+1):
-                if cx1 == i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is smaller we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))                   
-    cx1,cx2,cy1,cy2 = int(x3),int(x4),int(y3),int(y4)
+    add_to_set(cx1,cx2,cy1,cy2,direction,explored) 
+                                      
+    cx1,cx2,cy1,cy2 = x3,x4,y3,y4
+    if (cx2>cx1) and (cy2>cy1):
+        direction = "downright"
+    elif (cx2>cx1) and (cy2<cy1):
+        direction = "upright"
+    elif (cx2<cx1) and (cy2>cy1):
+        direction = "downleft"
+    else:
+        direction = "upleft"
+    add_to_set(cx1,cx2,cy1,cy2,direction,explored) 
+    
+    cx1,cx2,cy1,cy2 = x4,x1,y4,y1
     if (cx2>cx1) and (cy2>cy1):
         direction = "downright"
     elif (cx2>cx1) and (cy2<cy1):
@@ -215,89 +233,10 @@ def in_Square(x1,y1,x3,y3):
     else:
         direction = "upleft"
     
-    if direction == "downright":
-        for i in range(cx1+1,cx2+1):
-            for j in range(cy1,cy2+1):
-                if j == cy1:
-                    explored.add((i,j))
-                    continue
-                # if the slope is bigger we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))
-    if direction == "upright":
-        for i in range(cx1,cx2+1):
-            for j in range(cy2,cy1+1):
-                if cx1==i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is smaller we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))
-    if direction == "upleft":
-        for i in range(cx2,cx1+1):
-            for j in range(cy2+1,cy1+1):
-                if cx2 ==i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is bigger we add it
-                if float(j-cy2)/(i-cx2) >= float(cy1-cy2) / (cx1-cx2):
-                    explored.add((i,j))
-    if direction == "downleft":
-        for i in range(cx2+1,cx1+1):
-            for j in range(cy1,cy2+1):
-                if cx1 == i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is smaller we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))    
-    cx1,cx2,cy1,cy2 = int(fx4),int(fx1),int(fy4),int(fy1)
-    if (cx2>cx1) and (cy2>cy1):
-        direction = "downright"
-    elif (cx2>cx1) and (cy2<cy1):
-        direction = "upright"
-    elif (cx2<cx1) and (cy2>cy1):
-        direction = "downleft"
-    else:
-        direction = "upleft"
+    add_to_set(cx1,cx2,cy1,cy2,direction,explored) 
     
-    if direction == "downright":
-        for i in range(cx1+1,cx2+1):
-            for j in range(cy1,cy2+1):
-                if j == cy1:
-                    explored.add((i,j))
-                    continue
-                # if the slope is bigger we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))
-    if direction == "upright":
-        for i in range(cx1,cx2+1):
-            for j in range(cy2,cy1+1):
-                if cx1==i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is smaller we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))
-    if direction == "upleft":
-        for i in range(cx2,cx1+1):
-            for j in range(cy2+1,cy1+1):
-                if cx2 ==i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is bigger we add it
-                if float(j-cy2)/(i-cx2) >= float(cy1-cy2) / (cx1-cx2):
-                    explored.add((i,j))
-    if direction == "downleft":
-        for i in range(cx2+1,cx1+1):
-            for j in range(cy1,cy2+1):
-                if cx1 == i:
-                    explored.add((i,j))
-                    continue
-                # if the slope is smaller we add it
-                if float(j-cy1)/(i-cx1) <= float(cy2-cy1) / (cx2-cx1):
-                    explored.add((i,j))    
     return explored
+
 explored = in_Square(x1,y1,x3,y3)
 for y in range(0,h):
     for x in range(0,w):
